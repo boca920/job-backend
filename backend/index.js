@@ -47,17 +47,22 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Ensure DB is connected before handling API requests (important on serverless cold starts)
+app.use(async (req, res, next) => {
+  try {
+    await dbConnection();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/notification", notificationRouter);
 app.use("/api/v1/interview", interviewRouter);
-
-// DB
-dbConnection().catch((error) => {
-  console.error("Database connection failed:", error?.message || error);
-});
 
 // Error handler
 app.use(errorMiddleware);

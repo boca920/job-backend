@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // جذر الرفع: backend/uploads
-const UPLOADS_ROOT = path.join(__dirname, "..", "uploads");
+const UPLOADS_ROOT = "/tmp/uploads";
 
 const ensureDir = (dirPath) => {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });

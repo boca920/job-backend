@@ -6,7 +6,7 @@ import ErrorHandler from "../middlewares/error.js";
 //  Get All Jobs
 // =======================
 export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
-  const jobs = await Job.find({ expired: false });
+  const jobs = await Job.find({ expired: false }).populate("postedBy", "name avatar");
   res.status(200).json({
     success: true,
     jobs,
@@ -38,10 +38,13 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     fixedSalary,
     salaryFrom,
     salaryTo,
+    companyName,
+    companyLogo,
+    companyDescription,
   } = req.body;
 
-  if (!title || !description || !category || !country || !city || !location) {
-    return next(new ErrorHandler("Please provide full job details.", 400));
+  if (!title || !description || !category || !country || !city || !location || !companyName) {
+    return next(new ErrorHandler("Please provide full job details including company name.", 400));
   }
 
   if ((!salaryFrom || !salaryTo) && !fixedSalary) {
@@ -74,6 +77,9 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     fixedSalary,
     salaryFrom,
     salaryTo,
+    companyName,
+    companyLogo,
+    companyDescription,
     postedBy,
   });
 
@@ -96,7 +102,7 @@ export const getMyJobs = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
-  const myJobs = await Job.find({ postedBy: req.user._id });
+  const myJobs = await Job.find({ postedBy: req.user._id }).populate("postedBy", "name avatar");
 
   res.status(200).json({
     success: true,
@@ -169,7 +175,7 @@ export const getSingleJob = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const job = await Job.findById(id);
+    const job = await Job.findById(id).populate("postedBy", "name avatar");
 
     if (!job) {
       return next(new ErrorHandler("Job not found.", 404));
@@ -242,7 +248,7 @@ export const searchJobs = catchAsyncErrors(async (req, res, next) => {
     filters.$and.push({ $or: salaryOr });
   }
 
-  const jobs = await Job.find(filters).sort({ createdAt: -1 });
+  const jobs = await Job.find(filters).populate("postedBy", "name avatar").sort({ jobPostedOn: -1 });
 
   res.status(200).json({
     success: true,

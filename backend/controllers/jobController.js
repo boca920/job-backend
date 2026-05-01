@@ -39,6 +39,9 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     fixedSalary,
     salaryFrom,
     salaryTo,
+    companyName,
+    companyLogo,
+    companyDescription,
   } = req.body;
 
   if (!title || !description || !category || !country || !city || !location) {
@@ -76,6 +79,9 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     salaryFrom,
     salaryTo,
     postedBy,
+    companyName,
+    companyLogo,
+    companyDescription,
   });
 
   res.status(200).json({
@@ -210,16 +216,18 @@ export const searchJobs = catchAsyncErrors(async (req, res, next) => {
     filters.employmentType = employmentType.trim();
   if (experience?.trim()) filters.experience = experience.trim();
 
-  if (q) {
-    filters.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { description: { $regex: q, $options: "i" } },
-      { category: { $regex: q, $options: "i" } },
-      { country: { $regex: q, $options: "i" } },
-      { city: { $regex: q, $options: "i" } },
-      { location: { $regex: q, $options: "i" } },
-    ];
-  }
+ if (q) {
+  filters.$or = [
+    { title: { $regex: q, $options: "i" } },
+    { description: { $regex: q, $options: "i" } },
+    { category: { $regex: q, $options: "i" } },
+    { country: { $regex: q, $options: "i" } },
+    { city: { $regex: q, $options: "i" } },
+    { location: { $regex: q, $options: "i" } },
+    { companyName: { $regex: q, $options: "i" } },        // جديد
+    { companyDescription: { $regex: q, $options: "i" } }, // جديد
+  ];
+}
 
   const min =
     salaryMin !== undefined && salaryMin !== ""

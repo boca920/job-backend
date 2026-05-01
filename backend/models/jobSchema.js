@@ -7,81 +7,82 @@ const jobSchema = new mongoose.Schema({
     minLength: [3, "Title must contain at least 3 Characters!"],
     maxLength: [30, "Title cannot exceed 30 Characters!"],
   },
+
   description: {
     type: String,
     required: [true, "Please provide decription."],
     minLength: [30, "Description must contain at least 30 Characters!"],
     maxLength: [500, "Description cannot exceed 500 Characters!"],
   },
+
   category: {
     type: String,
     required: [true, "Please provide a category."],
   },
 
-  // NEW: Filters
+  // ================= Filters =================
   workType: {
     type: String,
     default: "",
   },
+
   employmentType: {
     type: String,
     default: "",
   },
+
   experience: {
     type: String,
     default: "",
   },
+
+  // ================= Location =================
   country: {
     type: String,
     required: [true, "Please provide a country name."],
   },
+
   city: {
     type: String,
     required: [true, "Please provide a city name."],
   },
+
   location: {
     type: String,
     required: [true, "Please provide location."],
     minLength: [20, "Location must contian at least 20 characters!"],
   },
+
+  // ================= Salary =================
   fixedSalary: {
     type: Number,
     minLength: [4, "Salary must contain at least 4 digits"],
     maxLength: [9, "Salary cannot exceed 9 digits"],
   },
+
   salaryFrom: {
     type: Number,
     minLength: [4, "Salary must contain at least 4 digits"],
     maxLength: [9, "Salary cannot exceed 9 digits"],
   },
+
   salaryTo: {
     type: Number,
     minLength: [4, "Salary must contain at least 4 digits"],
     maxLength: [9, "Salary cannot exceed 9 digits"],
   },
+
+  // ================= Meta =================
   expired: {
     type: Boolean,
     default: false,
   },
+
   jobPostedOn: {
     type: Date,
     default: Date.now,
   },
-  // Company Information
-  companyName: {
-    type: String,
-    required: [true, "Please provide company name."],
-    minLength: [3, "Company name must contain at least 3 Characters!"],
-    maxLength: [50, "Company name cannot exceed 50 Characters!"],
-  },
-  companyLogo: {
-    type: String,
-    default: "",
-  },
-  companyDescription: {
-    type: String,
-    maxLength: [300, "Company description cannot exceed 300 characters!"],
-  },
+
   postedBy: {
     type: mongoose.Schema.ObjectId,
     ref: "User",

@@ -6,7 +6,8 @@ import ErrorHandler from "../middlewares/error.js";
 //  Get All Jobs
 // =======================
 export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
-  const jobs = await Job.find({ expired: false }).populate("postedBy", "name avatar");
+  const jobs = await Job.find({ expired: false });
+
   res.status(200).json({
     success: true,
     jobs,
@@ -38,13 +39,10 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     fixedSalary,
     salaryFrom,
     salaryTo,
-    companyName,
-    companyLogo,
-    companyDescription,
   } = req.body;
 
-  if (!title || !description || !category || !country || !city || !location || !companyName) {
-    return next(new ErrorHandler("Please provide full job details including company name.", 400));
+  if (!title || !description || !category || !country || !city || !location) {
+    return next(new ErrorHandler("Please provide full job details.", 400));
   }
 
   if ((!salaryFrom || !salaryTo) && !fixedSalary) {
@@ -77,9 +75,6 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
     fixedSalary,
     salaryFrom,
     salaryTo,
-    companyName,
-    companyLogo,
-    companyDescription,
     postedBy,
   });
 
@@ -102,7 +97,7 @@ export const getMyJobs = catchAsyncErrors(async (req, res, next) => {
     );
   }
 
-  const myJobs = await Job.find({ postedBy: req.user._id }).populate("postedBy", "name avatar");
+  const myJobs = await Job.find({ postedBy: req.user._id });
 
   res.status(200).json({
     success: true,
@@ -123,6 +118,7 @@ export const updateJob = catchAsyncErrors(async (req, res, next) => {
   }
 
   const { id } = req.params;
+
   let job = await Job.findById(id);
 
   if (!job) {
@@ -154,6 +150,7 @@ export const deleteJob = catchAsyncErrors(async (req, res, next) => {
   }
 
   const { id } = req.params;
+
   const job = await Job.findById(id);
 
   if (!job) {
@@ -175,7 +172,7 @@ export const getSingleJob = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const job = await Job.findById(id).populate("postedBy", "name avatar");
+    const job = await Job.findById(id);
 
     if (!job) {
       return next(new ErrorHandler("Job not found.", 404));
@@ -194,7 +191,6 @@ export const getSingleJob = catchAsyncErrors(async (req, res, next) => {
 //  Search Jobs
 // =======================
 export const searchJobs = catchAsyncErrors(async (req, res, next) => {
-  // Supports both `query` and legacy `keyword`
   const {
     query,
     keyword,
@@ -209,10 +205,10 @@ export const searchJobs = catchAsyncErrors(async (req, res, next) => {
 
   const filters = { expired: false };
 
-  if (workType && String(workType).trim()) filters.workType = String(workType).trim();
-  if (employmentType && String(employmentType).trim())
-    filters.employmentType = String(employmentType).trim();
-  if (experience && String(experience).trim()) filters.experience = String(experience).trim();
+  if (workType?.trim()) filters.workType = workType.trim();
+  if (employmentType?.trim())
+    filters.employmentType = employmentType.trim();
+  if (experience?.trim()) filters.experience = experience.trim();
 
   if (q) {
     filters.$or = [
@@ -225,30 +221,41 @@ export const searchJobs = catchAsyncErrors(async (req, res, next) => {
     ];
   }
 
-  // Salary filter: handles fixedSalary OR ranged salary overlap
-  const min = salaryMin !== undefined && salaryMin !== "" ? Number(salaryMin) : undefined;
-  const max = salaryMax !== undefined && salaryMax !== "" ? Number(salaryMax) : undefined;
+  const min =
+    salaryMin !== undefined && salaryMin !== ""
+      ? Number(salaryMin)
+      : undefined;
 
-  if ((min !== undefined && !Number.isNaN(min)) || (max !== undefined && !Number.isNaN(max))) {
+  const max =
+    salaryMax !== undefined && salaryMax !== ""
+      ? Number(salaryMax)
+      : undefined;
+
+  if (
+    (min !== undefined && !Number.isNaN(min)) ||
+    (max !== undefined && !Number.isNaN(max))
+  ) {
     const salaryOr = [];
 
-    // Fixed salary checks
     const fixedCond = {};
     if (min !== undefined && !Number.isNaN(min)) fixedCond.$gte = min;
     if (max !== undefined && !Number.isNaN(max)) fixedCond.$lte = max;
+
     salaryOr.push({ fixedSalary: fixedCond });
 
-    // Ranged salary overlap checks
     const rangeCond = {};
-    if (min !== undefined && !Number.isNaN(min)) rangeCond.salaryTo = { $gte: min };
-    if (max !== undefined && !Number.isNaN(max)) rangeCond.salaryFrom = { $lte: max };
+    if (min !== undefined && !Number.isNaN(min))
+      rangeCond.salaryTo = { $gte: min };
+    if (max !== undefined && !Number.isNaN(max))
+      rangeCond.salaryFrom = { $lte: max };
+
     salaryOr.push(rangeCond);
 
     filters.$and = filters.$and || [];
     filters.$and.push({ $or: salaryOr });
   }
 
-  const jobs = await Job.find(filters).populate("postedBy", "name avatar").sort({ jobPostedOn: -1 });
+  const jobs = await Job.find(filters).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,

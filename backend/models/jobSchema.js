@@ -67,6 +67,21 @@ const jobSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // Company Information
+  companyName: {
+    type: String,
+    required: [true, "Please provide company name."],
+    minLength: [3, "Company name must contain at least 3 Characters!"],
+    maxLength: [50, "Company name cannot exceed 50 Characters!"],
+  },
+  companyLogo: {
+    type: String,
+    default: "",
+  },
+  companyDescription: {
+    type: String,
+    maxLength: [300, "Company description cannot exceed 300 characters!"],
+  },
   postedBy: {
     type: mongoose.Schema.ObjectId,
     ref: "User",

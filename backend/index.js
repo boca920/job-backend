@@ -85,6 +85,16 @@ app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/notification", notificationRouter);
 app.use("/api/v1/interview", interviewRouter);
 
+// Default route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Job Backend API is running!',
+    status: 'success',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Error handler
 app.use(errorMiddleware);
 

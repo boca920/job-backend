@@ -9,9 +9,9 @@
     "dev": "nodemon server.js"
   },
   "author": "",
- "engines": {
-  "node": ">=22"
-}
+  "engines": {
+    "node": ">=22"
+  },
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

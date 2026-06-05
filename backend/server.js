@@ -1,7 +1,11 @@
 import "dotenv/config.js";
 import app from "./index.js";
 
+// Exit immediately
+process.exit(1);
+
 const PORT = Number(process.env.PORT) || 4000;
+
 const server = app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
